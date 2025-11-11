@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+
+# Secrets
+.env
+env-vars.json
+
+# Lambda deployment artifacts
+*.zip
+lambda-code.zip
+lambda-layer-slim.zip
+
+# Layer build directory
+layer-slim/
+
+# Serverless
+.serverless/
+
+# IDE
+.vscode/

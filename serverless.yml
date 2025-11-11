@@ -1,0 +1,75 @@
+service: budget-tracking
+
+provider:
+  name: aws
+  runtime: python3.13
+  region: eu-west-3
+  memorySize: 256
+  timeout: 30
+  environment:
+    # Google Sheets configuration
+    SPREADSHEET_ID: '${env:SPREADSHEET_ID}'
+    SHEET_NAME: '${env:SHEET_NAME, "Opérations"}'
+    GOOGLE_CREDENTIALS_JSON: '${env:GOOGLE_CREDENTIALS_JSON}'
+
+    # Crédit Agricole configuration
+    CA_ACCOUNT_NUMBER: '${env:CA_ACCOUNT_NUMBER}'
+    CA_PASSWORD: '${env:CA_PASSWORD}'
+    CA_DEPARTMENT: '${env:CA_DEPARTMENT}'
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:PutLogEvents
+      Resource:
+        - arn:aws:logs:${aws:region}:${aws:accountId}:log-group:/aws/lambda/*:*
+
+functions:
+  api:
+    handler: lambda_function.handler
+    events:
+      - httpApi:
+          path: /fetch-transactions
+          method: POST
+    layers:
+      # AWS managed layer for Pandas (Python 3.13)
+      - arn:aws:lambda:eu-west-3:336392948345:layer:AWSSDKPandas-Python313:1
+      # Custom layer (will be created by serverless-python-requirements)
+      - !Ref PythonRequirementsLambdaLayer
+
+package:
+  patterns:
+    - '!.git/**'
+    - '!.vscode/**'
+    - '!tests/**'
+    - '!layer/**'
+    - '!node_modules/**'
+    - '!__pycache__/**'
+    - '!*.pyc'
+    - '!.pytest_cache/**'
+    - '!.coverage'
+    - '!*.zip'
+    - 'lambda_function.py'
+    - 'utils/**'
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    layer:
+      name: ${self:service}-python-deps
+      description: Python dependencies for budget tracking
+      compatibleRuntimes:
+        - python3.13
+    slim: true
+    strip: false
+    zip: true
+    useStaticCache: false
+    useDownloadCache: false
+    pipCmdExtraArgs:
+      - --platform manylinux2014_x86_64
+      - --only-binary=:all:

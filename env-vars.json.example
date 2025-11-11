@@ -1,0 +1,10 @@
+{
+  "Variables": {
+    "SPREADSHEET_ID": "",
+    "SHEET_NAME": "",
+    "GOOGLE_CREDENTIALS_JSON": "{\"type\":\"service_account\",\"project_id\":\"\",\"private_key_id\":\"\",\"private_key\":\"\",\"client_email\":\"\",\"client_id\":\"\",\"auth_uri\":\"\",\"token_uri\":\"\",\"auth_provider_x509_cert_url\":\"\",\"client_x509_cert_url\":\"\"}",
+    "CA_ACCOUNT_NUMBER": "",
+    "CA_PASSWORD": "1,2,3,4,5,6",
+    "CA_REGION": "bretagne"
+  }
+}
