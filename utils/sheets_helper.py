@@ -13,6 +13,11 @@ def process_transactions(transactions: List[Dict]) -> pd.DataFrame:
     df['amount'] = df['amount'].astype(float)
     df['label'] = df['label'].apply(clean_label)
 
+    # cragr's iter_history() yields newest-first; sort ascending so rows
+    # land in the sheet in chronological order regardless of fetch order
+    # (matters for multi-day backfills, harmless for the daily single-day case).
+    df = df.sort_values('date').reset_index(drop=True)
+
     return df[['date', 'label', 'amount']]
 
 

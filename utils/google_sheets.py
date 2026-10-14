@@ -57,7 +57,26 @@ class GoogleSheetsClient:
             spreadsheet = self.client.open_by_key(spreadsheet_id)
             worksheet = spreadsheet.worksheet(sheet_name)
 
-            start_row = len(worksheet.get_all_values()) + 1
+            existing_rows = worksheet.get_all_values()
+            existing_keys = self._existing_keys(existing_rows)
+
+            # Now that the daily fetch pulls a multi-day window (to absorb
+            # the bank's settlement lag) instead of just "today", the same
+            # transaction can show up on several consecutive runs. Skip
+            # anything that matches an already-written (date, label, amount).
+            df = df[~df.apply(
+                lambda row: (
+                    row['date'].strftime('%d/%m/%Y'),
+                    row['label'],
+                    round(row['amount'], 2)
+                ) in existing_keys,
+                axis=1
+            )]
+
+            if df.empty:
+                return 0
+
+            start_row = len(existing_rows) + 1
             values = format_for_sheets(df, start_row)
 
             worksheet.append_rows(values, value_input_option='USER_ENTERED')
@@ -71,6 +90,23 @@ class GoogleSheetsClient:
                 status_code=500,
                 detail=f"Failed to append transactions: {str(e)}"
             )
+
+    @staticmethod
+    def _existing_keys(rows: list) -> set:
+        """Build a set of (date_operation, label, amount) already present
+        in the sheet, to dedupe against before appending."""
+        keys = set()
+        for row in rows:
+            if len(row) < 4:
+                continue
+            label = row[1].strip()
+            date_operation = row[3].strip()
+            try:
+                amount = round(float(row[2].strip().replace(',', '.').replace(' ', '')), 2)
+            except ValueError:
+                continue
+            keys.add((date_operation, label, amount))
+        return keys
 
     @staticmethod
     def _format_rows(worksheet, start_row: int, end_row: int):

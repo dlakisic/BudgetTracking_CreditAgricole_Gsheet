@@ -78,7 +78,7 @@ check-env:
 	@[ -n "$$GOOGLE_CREDENTIALS_JSON" ] && echo "✓ GOOGLE_CREDENTIALS_JSON set" || echo "✗ GOOGLE_CREDENTIALS_JSON NOT set"
 	@[ -n "$$CA_ACCOUNT_NUMBER" ] && echo "✓ CA_ACCOUNT_NUMBER set" || echo "✗ CA_ACCOUNT_NUMBER NOT set"
 	@[ -n "$$CA_PASSWORD" ] && echo "✓ CA_PASSWORD set" || echo "✗ CA_PASSWORD NOT set"
-	@[ -n "$$CA_DEPARTMENT" ] && echo "✓ CA_DEPARTMENT set" || echo "✗ CA_DEPARTMENT NOT set"
+	@[ -n "$$CA_WEBSITE" ] && echo "✓ CA_WEBSITE set" || echo "✗ CA_WEBSITE NOT set"
 
 info:
 	serverless info

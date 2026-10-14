@@ -12,10 +12,10 @@ provider:
     SHEET_NAME: '${env:SHEET_NAME, "Opérations"}'
     GOOGLE_CREDENTIALS_JSON: '${env:GOOGLE_CREDENTIALS_JSON}'
 
-    # Crédit Agricole configuration
+    # Crédit Agricole configuration (via woob's cragr module)
     CA_ACCOUNT_NUMBER: '${env:CA_ACCOUNT_NUMBER}'
     CA_PASSWORD: '${env:CA_PASSWORD}'
-    CA_DEPARTMENT: '${env:CA_DEPARTMENT}'
+    CA_WEBSITE: '${env:CA_WEBSITE}'
 
   iamRoleStatements:
     - Effect: Allow
@@ -53,6 +53,7 @@ package:
     - '!*.zip'
     - 'lambda_function.py'
     - 'utils/**'
+    - 'woob_modules/**'
 
 plugins:
   - serverless-python-requirements

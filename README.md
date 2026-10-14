@@ -29,11 +29,13 @@ Serverless on AWS Free Tier ($0/month):
 .
 ├── lambda_function.py       # Lambda entry point with FastAPI
 ├── utils/
-│   ├── credit_agricole.py  # Bank API client (creditagricole-particuliers v0.2.0)
+│   ├── credit_agricole.py  # Bank API client (woob's cragr module)
 │   ├── google_sheets.py    # Google Sheets client with formatting
 │   ├── sheets_helper.py    # Data processing and formula generation
 │   ├── logger.py           # CloudWatch logging setup
 │   └── config.py           # Application settings
+├── woob_modules/
+│   └── cragr/               # Bundled woob module for Crédit Agricole (see Troubleshooting)
 ├── layer-slim/             # Lambda Layer source (dependencies)
 ├── lambda-code.zip         # Deployed Lambda code (4.6KB)
 ├── lambda-layer-slim.zip   # Deployed Lambda Layer (6.5MB)
@@ -74,9 +76,9 @@ cp env-vars.json.example env-vars.json
 | `SPREADSHEET_ID` | Google Sheets ID from URL | `1ABCD...` |
 | `SHEET_NAME` | Worksheet name | `Opérations` |
 | `GOOGLE_CREDENTIALS_JSON` | Service account JSON (single line) | `{"type":"service_account"...}` |
-| `CA_ACCOUNT_NUMBER` | Bank account number | `12345678901` |
-| `CA_PASSWORD` | PIN as comma-separated digits | `1,2,3,4,5,6` |
-| `CA_REGION` | Regional bank code | `bretagne`, `paris`, etc. |
+| `CA_ACCOUNT_NUMBER` | Bank account number (11 digits) | `12345678901` |
+| `CA_PASSWORD` | PIN, raw 6-digit string | `123456` |
+| `CA_WEBSITE` | Regional bank domain (see `woob_modules/cragr/module.py` `region_choices` for the full list) | `www.ca-normandie.fr` |
 
 ### 3. Google Service Account Setup
 
@@ -206,7 +208,7 @@ Borders on cells A-D and F-G, column D right-aligned. Formulas reference the 'Ca
 | google-auth | OAuth2 authentication |
 | pydantic | Data validation |
 | pandas | Data processing |
-| creditagricole-particuliers | Bank API client (v0.2.0) |
+| woob (cragr module) | Bank scraping client for Crédit Agricole |
 
 ## Cost
 
@@ -224,7 +226,15 @@ Borders on cells A-D and F-G, column D right-aligned. Formulas reference the 'Ca
 
 **Lambda Layers**: Separates 6.5MB of dependencies from 4.6KB code for faster deployments.
 
-**creditagricole-particuliers v0.2.0**: v0.14.3 has breaking API changes.
+**woob's `cragr` module**: replaced the unofficial `creditagricole-particuliers` lib (archived Aug 2025, unmaintained) after Crédit Agricole's June 2026 site migration to `espace-client.credit-agricole.fr` broke it permanently. `cragr` is maintained by Powens/Budget Insight employees and is actively patched when the bank's site changes. The module is bundled locally in `woob_modules/` (not fetched from `updates.woob.tech` at runtime) so deploys stay reproducible.
+
+To refresh it after a bank-side breakage:
+```bash
+pip install --user --break-system-packages woob
+export PATH="$HOME/.local/bin:$PATH"
+woob config update
+cp -r ~/.local/share/woob/modules/*/woob_modules/cragr woob_modules/
+```
 
 **Environment Variables**: Free alternative to Secrets Manager. Still encrypted at rest.
 
@@ -266,4 +276,4 @@ Personal use only.
 
 ## Credits
 
-- [python-creditagricole-particuliers](https://github.com/dmachard/python-creditagricole-particuliers) v0.2.0 by dmachard
+- [woob](https://woob.tech/) (ex-weboob) and its `cragr` module, maintained by Powens/Budget Insight

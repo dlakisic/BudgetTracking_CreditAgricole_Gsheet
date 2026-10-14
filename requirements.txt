@@ -8,9 +8,19 @@ pandas==2.2.3
 gspread==6.1.4
 google-auth==2.37.0
 google-auth-oauthlib==1.2.1
-# creditagricole-particuliers - Install manually or from layer
-# Package not available on PyPI
-requests==2.32.3
+requests==2.32.4
+# woob provides the `cragr` (Credit Agricole) scraping backend used in
+# utils/credit_agricole.py. The cragr module itself is bundled in
+# woob_modules/ rather than pulled from updates.woob.tech at runtime -
+# see README for how to refresh it.
+woob==3.7
+lxml==6.1.1
+html2text==2025.4.15
+unidecode==1.4.0
+pycountry==26.2.16
+python-dateutil==2.9.0.post0
+termcolor==3.3.0
+packaging==23.2
 
 # Development dependencies
 pytest>=8.0.0
